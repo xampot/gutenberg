@@ -6,9 +6,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import edit from './edit';
 import metadata from './block.json';
-import save from './save';
+import edit from './edit';
 import transforms from './transforms';
 
 const { name } = metadata;
@@ -18,11 +17,10 @@ export { metadata, name };
 export const settings = {
 	title: __( 'Table of Contents' ),
 	description: __(
-		'Add a list of internal links allowing your readers to quickly navigate around.'
+		'Summarize your post with a list of headings. Add HTML anchors to Heading blocks to link them here.'
 	),
 	icon: 'list-view',
-	category: 'layout',
+	keywords: [ __( 'outline' ), __( 'summary' ) ],
 	transforms,
 	edit,
-	save,
 };
