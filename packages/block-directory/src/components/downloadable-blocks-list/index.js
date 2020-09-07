@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
+import { Composite, useCompositeState } from 'reakit';
 import { noop } from 'lodash';
 
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
 import { store as editPostStore } from '@wordpress/edit-post';
 
@@ -16,6 +18,7 @@ import DownloadableBlockListItem from '../downloadable-block-list-item';
 import { store as blockDirectoryStore } from '../../store';
 
 function DownloadableBlocksList( { items, onHover = noop, onSelect } ) {
+	const composite = useCompositeState();
 	const { installBlockType } = useDispatch( blockDirectoryStore );
 	const { setIsInserterOpened } = useDispatch( editPostStore );
 
@@ -24,16 +27,17 @@ function DownloadableBlocksList( { items, onHover = noop, onSelect } ) {
 	}
 
 	return (
-		/*
-		 * Disable reason: The `list` ARIA role is redundant but
-		 * Safari+VoiceOver won't announce the list otherwise.
-		 */
-		/* eslint-disable jsx-a11y/no-redundant-roles */
-		<ul role="list" className="block-directory-downloadable-blocks-list">
+		<Composite
+			{ ...composite }
+			role="listbox"
+			className="block-directory-downloadable-blocks-list"
+			aria-label={ __( 'Blocks available for install' ) }
+		>
 			{ items.map( ( item ) => {
 				return (
 					<DownloadableBlockListItem
 						key={ item.id }
+						composite={ composite }
 						onClick={ () => {
 							installBlockType( item ).then( ( success ) => {
 								if ( success ) {
@@ -43,12 +47,12 @@ function DownloadableBlocksList( { items, onHover = noop, onSelect } ) {
 							} );
 							onHover( null );
 						} }
+						onHover={ onHover }
 						item={ item }
 					/>
 				);
 			} ) }
-		</ul>
-		/* eslint-enable jsx-a11y/no-redundant-roles */
+		</Composite>
 	);
 }
 
