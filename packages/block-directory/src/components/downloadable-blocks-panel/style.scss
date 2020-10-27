@@ -3,12 +3,18 @@
 	padding: $grid-unit-20;
 }
 
+.block-directory-downloadable-blocks-panel__heading {
+	padding: $grid-unit-20;
+}
+
 .block-directory-downloadable-blocks-panel__title {
 	margin: 0 0 0.5em;
 	font-size: 1.1em;
 }
 
 .block-directory-downloadable-blocks-panel__description {
+	margin-top: 0;
+
 	&.has-no-results {
 		$no-result-padding: $grid-unit-20 * 7;
 		font-style: normal;
@@ -20,5 +26,9 @@
 		.components-spinner {
 			float: inherit;
 		}
+	}
+
+	+ button {
+		margin-top: $grid-unit-10;
 	}
 }

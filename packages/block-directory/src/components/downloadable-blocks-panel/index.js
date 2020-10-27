@@ -33,9 +33,11 @@ function DownloadableBlocksPanel( {
 
 	if ( typeof hasPermission === 'undefined' || isLoading || isWaiting ) {
 		return (
-			<p className="block-directory-downloadable-blocks-panel__description has-no-results">
-				<Spinner />
-			</p>
+			<div className="block-directory-downloadable-blocks-panel__heading">
+				<p className="block-directory-downloadable-blocks-panel__description has-no-results">
+					<Spinner />
+				</p>
+			</div>
 		);
 	}
 
@@ -43,9 +45,11 @@ function DownloadableBlocksPanel( {
 		if ( ! hasItems ) {
 			debouncedSpeak( __( 'No blocks found in your library.' ) );
 			return (
-				<p className="block-directory-downloadable-blocks-panel__description has-no-results">
-					{ __( 'No blocks found in your library.' ) }
-				</p>
+				<div className="block-directory-downloadable-blocks-panel__heading">
+					<p className="block-directory-downloadable-blocks-panel__description has-no-results">
+						{ __( 'No blocks found in your library.' ) }
+					</p>
+				</div>
 			);
 		}
 
@@ -55,56 +59,60 @@ function DownloadableBlocksPanel( {
 	if ( ! isPanelOpen && downloadableItems.length ) {
 		return (
 			<div className="block-directory-downloadable-blocks-panel">
-				<h2 className="block-directory-downloadable-blocks-panel__title">
-					{ hasItems
-						? __( 'More blocks to use' )
-						: __( 'No installed blocks found' ) }
-				</h2>
-				<p className="block-directory-downloadable-blocks-panel__description">
-					{ sprintf(
-						/* translators: %d: number of available blocks. */
-						_n(
-							'%d additional block is available to install.',
-							'%d additional blocks are available to install.',
+				<div className="block-directory-downloadable-blocks-panel__heading">
+					<h2 className="block-directory-downloadable-blocks-panel__title">
+						{ hasItems
+							? __( 'More blocks to use' )
+							: __( 'No installed blocks found' ) }
+					</h2>
+					<p className="block-directory-downloadable-blocks-panel__description">
+						{ sprintf(
+							/* translators: %d: number of available blocks. */
+							_n(
+								'%d additional block is available to install.',
+								'%d additional blocks are available to install.',
+								downloadableItems.length
+							),
 							downloadableItems.length
-						),
-						downloadableItems.length
-					) }
-				</p>
-				<Button
-					isPrimary
-					onClick={ () => setPanelOpen( ! isPanelOpen ) }
-				>
-					{ sprintf(
-						/* translators: %d: number of available blocks. */
-						_n(
-							'Show %d block',
-							'Show %d blocks',
+						) }
+					</p>
+					<Button
+						isPrimary
+						onClick={ () => setPanelOpen( ! isPanelOpen ) }
+					>
+						{ sprintf(
+							/* translators: %d: number of available blocks. */
+							_n(
+								'Show %d block',
+								'Show %d blocks',
+								downloadableItems.length
+							),
 							downloadableItems.length
-						),
-						downloadableItems.length
-					) }
-				</Button>
+						) }
+					</Button>
+				</div>
 			</div>
 		);
 	}
 
 	return (
 		<div className="block-directory-downloadable-blocks-panel">
-			<h2>
-				{ sprintf(
-					/* translators: %d: number of available blocks. */
-					_n(
-						'Showing %d available block',
-						'Showing %d available blocks',
+			<div className="block-directory-downloadable-blocks-panel__heading">
+				<h2 className="block-directory-downloadable-blocks-panel__title">
+					{ sprintf(
+						/* translators: %d: number of available blocks. */
+						_n(
+							'Showing %d available block',
+							'Showing %d available blocks',
+							downloadableItems.length
+						),
 						downloadableItems.length
-					),
-					downloadableItems.length
-				) }
-			</h2>
-			<p className="block-directory-downloadable-blocks-panel__description">
-				{ __( 'These blocks can be downloaded and installed:' ) }
-			</p>
+					) }
+				</h2>
+				<p className="block-directory-downloadable-blocks-panel__description">
+					{ __( 'These blocks can be downloaded and installed:' ) }
+				</p>
+			</div>
 			<DownloadableBlocksList
 				items={ downloadableItems }
 				onSelect={ onSelect }
