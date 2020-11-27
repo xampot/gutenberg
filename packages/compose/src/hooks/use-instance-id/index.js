@@ -3,12 +3,14 @@
  */
 import { useMemo } from '@wordpress/element';
 
+/** @type {WeakMap<Object, number>} */
 const instanceMap = new WeakMap();
 
 /**
- * Creates a new id for a given object.
+ * Creates a new ID for a given object.
  *
  * @param {Object} object Object reference to create an id for.
+ * @return {number} ID
  */
 function createId( object ) {
 	const instances = instanceMap.get( object ) || 0;
@@ -19,8 +21,9 @@ function createId( object ) {
 /**
  * Provides a unique instance ID.
  *
- * @param {Object} object Object reference to create an id for.
- * @param {string} prefix Prefix for the unique id.
+ * @param {Object} object   Object to create an id for.
+ * @param {string} [prefix] Prefix for the unique id.
+ * @return {string | number} Instance ID
  */
 export default function useInstanceId( object, prefix ) {
 	return useMemo( () => {

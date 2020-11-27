@@ -153,13 +153,9 @@ be returned and any scheduled calls cancelled if any of the arguments change,
 including the function to debounce, so please wrap functions created on
 render in components in `useCallback`.
 
-_Parameters_
+_Type_
 
--   _args_ `...any`: Arguments passed to Lodash's `debounce`.
-
-_Returns_
-
--   `Function`: Debounced function.
+-   (unknown type) 
 
 <a name="useInstanceId" href="#useInstanceId">#</a> **useInstanceId**
 
@@ -167,8 +163,12 @@ Provides a unique instance ID.
 
 _Parameters_
 
--   _object_ `Object`: Object reference to create an id for.
--   _prefix_ `string`: Prefix for the unique id.
+-   _object_ `Object`: Object to create an id for.
+-   _prefix_ `[string]`: Prefix for the unique id.
+
+_Returns_
+
+-   `(string|number)`: Instance ID
 
 <a name="useKeyboardShortcut" href="#useKeyboardShortcut">#</a> **useKeyboardShortcut**
 
