@@ -1,0 +1,14 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"declarationDir": "build-types"
+	},
+	"references": [
+		{ "path": "../deprecated" },
+		{ "path": "../element" },
+		{ "path": "../is-shallow-equal" },
+		{ "path": "../priority-queue" }
+	],
+	"include": [ "src/**/*" ]
+}
