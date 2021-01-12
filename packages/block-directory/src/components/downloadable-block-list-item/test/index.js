@@ -23,26 +23,57 @@ jest.mock( '@wordpress/data/src/components/use-select', () => {
 describe( 'DownloadableBlockListItem', () => {
 	it( 'should render a block item', () => {
 		useSelect.mockImplementation( () => ( {
-			isLoading: false,
+			isInstalling: false,
 			isInstallable: true,
 		} ) );
 
-		const { container } = render(
+		const { queryByText } = render(
 			<DownloadableBlockListItem onClick={ jest.fn() } item={ plugin } />
 		);
+		const author = queryByText( `by ${ plugin.author }` );
+		const description = queryByText( plugin.description );
+		expect( author ).not.toBeNull();
+		expect( description ).not.toBeNull();
+	} );
 
-		expect( container ).toMatchSnapshot();
+	it( 'should show a spinner when installing the block', () => {
+		useSelect.mockImplementation( () => ( {
+			isInstalling: true,
+			isInstallable: true,
+		} ) );
+
+		const { queryByText } = render(
+			<DownloadableBlockListItem onClick={ jest.fn() } item={ plugin } />
+		);
+		const spinner = queryByText( `Installing ${ plugin.title }` );
+		expect( spinner ).not.toBeNull();
+	} );
+
+	it( "should be disabled when a plugin can't be installed", () => {
+		useSelect.mockImplementation( () => ( {
+			isInstalling: false,
+			isInstallable: false,
+		} ) );
+
+		const { getByRole } = render(
+			<DownloadableBlockListItem onClick={ jest.fn() } item={ plugin } />
+		);
+		const button = getByRole( 'option' );
+		expect( button.disabled ).toBe( true );
+		expect( button.getAttribute( 'aria-disabled' ) ).toBe( 'true' );
 	} );
 
 	it( 'should try to install the block plugin', () => {
+		useSelect.mockImplementation( () => ( {
+			isInstalling: false,
+			isInstallable: true,
+		} ) );
 		const onClick = jest.fn();
-		const { container } = render(
+		const { getByRole } = render(
 			<DownloadableBlockListItem onClick={ onClick } item={ plugin } />
 		);
 
-		const button = container.querySelector(
-			'.block-directory-downloadable-block-list-item__item'
-		);
+		const button = getByRole( 'option' );
 		fireEvent.click( button );
 
 		expect( onClick ).toHaveBeenCalledTimes( 1 );

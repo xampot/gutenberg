@@ -39,22 +39,21 @@ describe( 'DownloadableBlocksList', () => {
 					onHover={ jest.fn() }
 				/>
 			);
-			const downloadableBlocks = container.querySelector(
-				'.block-directory-downloadable-blocks-list'
-			);
 
-			expect( downloadableBlocks ).toBe( null );
+			expect( container.firstChild ).toBe( null );
 		} );
 
 		it( 'should render plugins items into the list', () => {
-			const { container } = render(
+			const { getAllByRole } = render(
 				<DownloadableBlocksList
 					items={ items }
 					onSelect={ jest.fn() }
 					onHover={ jest.fn() }
 				/>
 			);
-			expect( container ).toMatchSnapshot();
+			const downloadableBlocks = getAllByRole( 'option' );
+
+			expect( downloadableBlocks ).toHaveLength( items.length );
 		} );
 	} );
 } );
