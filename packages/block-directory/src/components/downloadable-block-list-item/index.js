@@ -1,13 +1,13 @@
 /**
- * External dependencies
- */
-import { CompositeItem } from 'reakit';
-
-/**
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Spinner } from '@wordpress/components';
+import {
+	Button,
+	Spinner,
+	VisuallyHidden,
+	__unstableCompositeItem as CompositeItem,
+} from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { useSelect } from '@wordpress/data';

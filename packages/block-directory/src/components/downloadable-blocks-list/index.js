@@ -1,13 +1,16 @@
 /**
  * External dependencies
  */
-import { Composite, useCompositeState } from 'reakit';
 import { noop } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import {
+	__unstableComposite as Composite,
+	__unstableUseCompositeState as useCompositeState,
+} from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { store as editPostStore } from '@wordpress/edit-post';
 
