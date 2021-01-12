@@ -41,8 +41,8 @@ function InserterMenuDownloadableBlocksPanel() {
 						onHover={ onHover }
 						rootClientId={ rootClientId }
 						filterValue={ debouncedFilterValue }
-						hasItems={ hasItems }
-						isWaiting={ filterValue !== debouncedFilterValue }
+						hasLocalBlocks={ hasItems }
+						isTyping={ filterValue !== debouncedFilterValue }
 					/>
 				);
 			} }

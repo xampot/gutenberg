@@ -4,7 +4,7 @@
 }
 
 .block-directory-downloadable-blocks-panel__heading {
-	padding: $grid-unit-20;
+	margin: $grid-unit-20 0;
 }
 
 .block-directory-downloadable-blocks-panel__title {
@@ -15,7 +15,7 @@
 .block-directory-downloadable-blocks-panel__description {
 	margin-top: 0;
 
-	&.has-no-results {
+	&.has-blocks-loading {
 		$no-result-padding: $grid-unit-20 * 7;
 		font-style: normal;
 		padding: 0;
@@ -27,8 +27,8 @@
 			float: inherit;
 		}
 	}
+}
 
-	+ button {
-		margin-top: $grid-unit-10;
-	}
+.block-directory-downloadable-blocks-panel button {
+	margin-top: $grid-unit-10;
 }
