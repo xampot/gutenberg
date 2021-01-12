@@ -158,15 +158,16 @@ function _gutenberg_build_template_result_from_file( $template_file, $template_t
 		$template_content = _inject_theme_attribute_in_content( $template_content, $theme );
 	}
 
-	$template            = new WP_Block_Template();
-	$template->id        = $theme . '//' . $template_file['slug'];
-	$template->theme     = $theme;
-	$template->content   = $template_content;
-	$template->slug      = $template_file['slug'];
-	$template->is_custom = false;
-	$template->type      = $template_type;
-	$template->title     = $template_file['slug'];
-	$template->status    = 'publish';
+	$template                       = new WP_Block_Template();
+	$template->id                   = $theme . '//' . $template_file['slug'];
+	$template->theme                = $theme;
+	$template->content              = $template_content;
+	$template->slug                 = $template_file['slug'];
+	$template->is_custom            = false;
+	$template->type                 = $template_type;
+	$template->title                = $template_file['slug'];
+	$template->status               = 'publish';
+	$template->original_file_exists = true;
 
 	if ( 'wp_template' === $template_type && isset( $default_template_types[ $template_file['slug'] ] ) ) {
 		$template->description = $default_template_types[ $template_file['slug'] ]['description'];
@@ -195,18 +196,21 @@ function _gutenberg_build_template_result_from_post( $post ) {
 	}
 
 	$theme = $terms[0]->name;
+	$original_file_exists = wp_get_theme()->get_stylesheet() === $theme &&
+		null !== _gutenberg_get_template_file( $post->post_type, $post->post_name );
 
-	$template              = new WP_Block_Template();
-	$template->wp_id       = $post->ID;
-	$template->id          = $theme . '//' . $post->post_name;
-	$template->theme       = $theme;
-	$template->content     = $post->post_content;
-	$template->slug        = $post->post_name;
-	$template->is_custom   = true;
-	$template->type        = $post->post_type;
-	$template->description = $post->post_excerpt;
-	$template->title       = $post->post_title;
-	$template->status      = $post->post_status;
+	$template                       = new WP_Block_Template();
+	$template->wp_id                = $post->ID;
+	$template->id                   = $theme . '//' . $post->post_name;
+	$template->theme                = $theme;
+	$template->content              = $post->post_content;
+	$template->slug                 = $post->post_name;
+	$template->is_custom            = true;
+	$template->type                 = $post->post_type;
+	$template->description          = $post->post_excerpt;
+	$template->title                = $post->post_title;
+	$template->status               = $post->post_status;
+	$template->original_file_exists = $original_file_exists;
 
 	return $template;
 }
