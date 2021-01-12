@@ -40,8 +40,7 @@
 		"@wordpress/notices": "file:../notices",
 		"@wordpress/plugins": "file:../plugins",
 		"@wordpress/url": "file:../url",
-		"lodash": "^4.17.19",
-		"reakit": "1.1.0"
+		"lodash": "^4.17.19"
 	},
 	"publishConfig": {
 		"access": "public"
