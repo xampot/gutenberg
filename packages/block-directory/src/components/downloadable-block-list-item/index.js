@@ -54,7 +54,6 @@ function DownloadableBlockListItem( { composite, item, onClick } ) {
 			>
 				<DownloadableBlockIcon icon={ icon } title={ title } />
 				<span className="block-directory-downloadable-block-list-item__details">
-					{ isInstalling && <Spinner /> }
 					<span className="block-directory-downloadable-block-list-item__title">
 						{ createInterpolateElement(
 							sprintf(
@@ -75,9 +74,21 @@ function DownloadableBlockListItem( { composite, item, onClick } ) {
 						ratingCount={ ratingCount }
 					/>
 				</span>
-				<p className="block-directory-downloadable-block-list-item__desc">
+				<span className="block-directory-downloadable-block-list-item__desc">
 					{ decodeEntities( description ) }
-				</p>
+				</span>
+				{ isInstalling && (
+					<span className="block-directory-downloadable-block-list-item__spinner">
+						<Spinner />
+						<VisuallyHidden>
+							{ sprintf(
+								/* translators: %s: block title. */
+								__( 'Installing %s' ),
+								title
+							) }
+						</VisuallyHidden>
+					</span>
+				) }
 			</CompositeItem>
 		</div>
 	);
