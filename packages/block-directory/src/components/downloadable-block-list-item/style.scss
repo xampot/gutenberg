@@ -19,11 +19,21 @@
 	}
 
 	&.is-busy {
+		position: relative;
 		background: transparent;
-	}
 
-	.components-spinner {
-		float: right;
+		.block-directory-downloadable-block-list-item__spinner {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+			width: 75%;
+			padding-right: $grid-unit-20;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+		}
 	}
 }
 
