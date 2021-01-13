@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { parse } from '@wordpress/blocks';
 import { controls } from '@wordpress/data';
 import { apiFetch } from '@wordpress/data-controls';
 import { __ } from '@wordpress/i18n';
@@ -289,6 +290,13 @@ export function* revertTemplate( template ) {
 			template.id
 		);
 
+		yield controls.dispatch(
+			'core',
+			'invalidateResolution',
+			'getEntityRecord',
+			[ 'postType', 'wp_template', template.id ]
+		);
+
 		const fileTemplate = yield controls.resolveSelect(
 			'core',
 			'getEntityRecord',
@@ -308,6 +316,15 @@ export function* revertTemplate( template ) {
 			);
 			return;
 		}
+
+		yield controls.dispatch(
+			'core',
+			'editEntityRecord',
+			'postType',
+			'wp_template',
+			fileTemplate.id,
+			{ blocks: parse( fileTemplate?.content?.raw ) }
+		);
 
 		yield controls.dispatch(
 			'core/notices',
