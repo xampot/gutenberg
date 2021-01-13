@@ -196,6 +196,12 @@ describe( 'actions', () => {
 				blockId: block.id,
 			} );
 
+			expect( generator.next().value ).toMatchObject( {
+				type: '@@data/DISPATCH',
+				actionName: 'createErrorNotice',
+				storeKey: noticesStore,
+			} );
+
 			expect( generator.next().value ).toEqual( {
 				type: 'SET_INSTALLING_BLOCK',
 				blockId: block.id,

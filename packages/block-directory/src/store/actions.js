@@ -119,6 +119,10 @@ export function* installBlockType( block ) {
 		}
 
 		yield setErrorNotice( id, message, isFatal );
+		yield controls.dispatch( noticesStore, 'createErrorNotice', message, {
+			speak: true,
+			isDismissible: true,
+		} );
 	}
 	yield setIsInstalling( block.id, false );
 	return success;
