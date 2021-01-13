@@ -188,7 +188,7 @@ export async function insertBlockDirectoryBlock( searchTerm ) {
 
 	// Grab the first block in the list
 	const insertButton = await page.waitForSelector(
-		'.block-directory-downloadable-blocks-list li:first-child button'
+		'.block-directory-downloadable-blocks-list div:first-child button'
 	);
 	await insertButton.click();
 	// We should wait until the inserter closes and the focus moves to the content.
