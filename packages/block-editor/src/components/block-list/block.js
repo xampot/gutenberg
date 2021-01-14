@@ -375,7 +375,7 @@ const applyWithDispatch = withDispatch( ( dispatch, ownProps, { select } ) => {
 			const { clientId, rootClientId } = ownProps;
 			const { getBlockIndex } = select( 'core/block-editor' );
 			const index = getBlockIndex( clientId, rootClientId );
-			insertBlocks( blocks, index + 1, rootClientId );
+			insertBlocks( blocks, index + 1, rootClientId, 0 );
 		},
 		onMerge( forward ) {
 			const { clientId } = ownProps;
@@ -408,7 +408,7 @@ const applyWithDispatch = withDispatch( ( dispatch, ownProps, { select } ) => {
 				[ ownProps.clientId ],
 				blocks,
 				indexToSelect,
-				initialPosition
+				initialPosition || 0
 			);
 		},
 		toggleSelection( selectionEnabled ) {

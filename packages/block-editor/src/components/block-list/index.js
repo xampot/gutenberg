@@ -17,6 +17,7 @@ import BlockListAppender from '../block-list-appender';
 import useBlockDropZone from '../use-block-drop-zone';
 import useInsertionPoint from './insertion-point';
 import BlockPopover from './block-popover';
+import { useScrollSelectionIntoView } from '../selection-scroll-into-view';
 
 /**
  * If the block count exceeds the threshold, we disable the reordering animation
@@ -31,6 +32,7 @@ export default function BlockList( { className } ) {
 	const ref = useRef();
 	const [ blockNodes, setBlockNodes ] = useState( {} );
 	const insertionPoint = useInsertionPoint( ref );
+	useScrollSelectionIntoView( ref );
 
 	return (
 		<BlockNodes.Provider value={ blockNodes }>
