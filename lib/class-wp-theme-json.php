@@ -315,9 +315,6 @@ class WP_Theme_JSON {
 		foreach( [ 'settings', 'styles' ] as $key => $subtree ) {
 			if ( isset( $this->theme_json[ $subtree ] ) ) {
 				$this->theme_json[ $subtree ]  = array_intersect_key( $this->theme_json[ $subtree ], $block_metadata );
-				if ( empty( $this->theme_json[ $subtree ] ) ) {
-					unset( $this->theme_json[ $subtree ] );
-				}
 			}
 		}
 
@@ -338,6 +335,14 @@ class WP_Theme_JSON {
 				}
 			}
 		}
+
+		// Filter if they're empty.
+		foreach( [ 'settings', 'styles' ] as $key => $subtree ) {
+			if ( empty( $this->theme_json[ $subtree ] ) ) {
+				unset( $this->theme_json[ $subtree ] );
+			}
+		}
+
 	}
 
 	/**
