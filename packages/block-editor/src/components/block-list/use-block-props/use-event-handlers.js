@@ -70,7 +70,7 @@ export function useEventHandlers( ref, clientId ) {
 			ref.current.addEventListener( 'focusin', onFocus );
 
 			return () => {
-				ref.current.removeEventListener( 'focusin', onFocus );
+				ref.current?.removeEventListener( 'focusin', onFocus );
 			};
 		}
 
@@ -130,9 +130,9 @@ export function useEventHandlers( ref, clientId ) {
 		ref.current.addEventListener( 'dragstart', onDragStart );
 
 		return () => {
-			ref.current.removeEventListener( 'mouseleave', onMouseLeave );
-			ref.current.removeEventListener( 'keydown', onKeyDown );
-			ref.current.removeEventListener( 'dragstart', onDragStart );
+			ref.current?.removeEventListener( 'mouseleave', onMouseLeave );
+			ref.current?.removeEventListener( 'keydown', onKeyDown );
+			ref.current?.removeEventListener( 'dragstart', onDragStart );
 		};
 	}, [
 		isSelected,
