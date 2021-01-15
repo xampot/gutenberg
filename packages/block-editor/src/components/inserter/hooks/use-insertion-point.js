@@ -35,13 +35,13 @@ function useInsertionPoint( {
 	onSelect,
 } ) {
 	const {
-		selectedBlock,
 		destinationRootClientId,
 		destinationIndex,
+		getSelectedBlock,
 	} = useSelect(
 		( select ) => {
 			const {
-				getSelectedBlock,
+				getSelectedBlock: _getSelectedBlock,
 				getBlockIndex,
 				getBlockOrder,
 				getBlockInsertionPoint,
@@ -79,7 +79,7 @@ function useInsertionPoint( {
 			}
 
 			return {
-				selectedBlock: getSelectedBlock(),
+				getSelectedBlock: _getSelectedBlock,
 				destinationRootClientId: _destinationRootClientId,
 				destinationIndex: _destinationIndex,
 			};
@@ -96,6 +96,8 @@ function useInsertionPoint( {
 
 	const onInsertBlocks = useCallback(
 		( blocks, meta ) => {
+			const selectedBlock = getSelectedBlock();
+
 			if (
 				! isAppender &&
 				selectedBlock &&
@@ -132,7 +134,7 @@ function useInsertionPoint( {
 		},
 		[
 			isAppender,
-			selectedBlock,
+			getSelectedBlock,
 			replaceBlocks,
 			insertBlocks,
 			destinationRootClientId,
