@@ -33,7 +33,7 @@ npm ci
 ## Run
 
 ```
-npm run native start
+npm run native start:reset
 ```
 
 Runs the packager (Metro) in development mode. The packager stays running to serve the app bundle to the clients that request it.
@@ -72,7 +72,7 @@ To see a list of all of your available iOS devices, use `xcrun simctl list devic
 
 ### Troubleshooting
 
-Some times, and especially when tweaking anything in the `package.json`, Babel configuration (`.babelrc`) or the Jest configuration (`jest.config.js`), your changes might seem to not take effect as expected. On those times, you might need to stop the metro bunder process and restart it with `npm run native start`. Other times, you might want to reinstall the NPM packages from scratch and the `npm run native clean:install` script can be handy.
+Some times, and especially when tweaking anything in the `package.json`, Babel configuration (`.babelrc`) or the Jest configuration (`jest.config.js`), your changes might seem to not take effect as expected. On those times, you might need to clean various caches before starting the packager. To do that, run the script: `npm run native start:reset`. Other times, you might want to reinstall the NPM packages from scratch and the `npm run native clean:install` script can be handy.
 
 ## Developing with Visual Studio Code
 
@@ -108,7 +108,7 @@ This project is set up to use [jest](https://facebook.github.io/jest/) for tests
 
 This repository uses Appium to run UI tests. The tests live in `__device-tests__` and are written using Appium to run tests against simulators and real devices. To run these you'll need to check off a few things:
 
--   When running the tests, you'll need to ensure the Metro bundler (`npm run native start`) is not running.
+-   When running the tests, you'll need to ensure the Metro bundler (i.e., `npm run native start:reset`) is not running.
 -   [Appium CLI](https://github.com/appium/appium/blob/master/docs/en/about-appium/getting-started.md) installed and available globally. We also recommend using [appium-doctor](https://github.com/appium/appium-doctor) to ensure all of Appium's dependencies are good to go. You don't have to worry about starting the server yourself, the tests handle starting the server on port 4723, just be sure that the port is free or feel free to change the port number in the test file.
 -   For iOS a simulator should automatically launch but for Android you'll need to have an emulator _with at least platform version 8.0_ fired up and running.
 
