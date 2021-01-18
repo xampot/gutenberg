@@ -2,11 +2,12 @@
  * External dependencies
  */
 const { BundleAnalyzerPlugin } = require( 'webpack-bundle-analyzer' );
-const LiveReloadPlugin = require( 'webpack-livereload-plugin' );
-const MiniCSSExtractPlugin = require( 'mini-css-extract-plugin' );
-const TerserPlugin = require( 'terser-webpack-plugin' );
 const { CleanWebpackPlugin } = require( 'clean-webpack-plugin' );
+const { HotModuleReplacementPlugin } = require( 'webpack' );
+const MiniCSSExtractPlugin = require( 'mini-css-extract-plugin' );
 const path = require( 'path' );
+const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
+const TerserPlugin = require( 'terser-webpack-plugin' );
 
 /**
  * WordPress dependencies
@@ -135,7 +136,6 @@ const config = {
 				test: /\.jsx?$/,
 				exclude: /node_modules/,
 				use: [
-					require.resolve( 'thread-loader' ),
 					{
 						loader: require.resolve( 'babel-loader' ),
 						options: {
@@ -155,6 +155,12 @@ const config = {
 										'@wordpress/babel-preset-default'
 									),
 								],
+								plugins: [
+									! isProduction &&
+										require.resolve(
+											'react-refresh/babel'
+										),
+								].filter( Boolean ),
 							} ),
 						},
 					},
@@ -217,12 +223,9 @@ const config = {
 		// obsolete and should be removed. Related webpack issue:
 		// https://github.com/webpack-contrib/mini-css-extract-plugin/issues/85
 		new FixStyleWebpackPlugin(),
-		// WP_LIVE_RELOAD_PORT global variable changes port on which live reload
-		// works when running watch mode.
-		! isProduction &&
-			new LiveReloadPlugin( {
-				port: process.env.WP_LIVE_RELOAD_PORT || 35729,
-			} ),
+		// React Fast Refresh.
+		! isProduction && new HotModuleReplacementPlugin(),
+		! isProduction && new ReactRefreshWebpackPlugin(),
 		// WP_NO_EXTERNALS global variable controls whether scripts' assets get
 		// generated, and the default externals set.
 		! process.env.WP_NO_EXTERNALS &&
