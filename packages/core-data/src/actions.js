@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid';
 /**
  * WordPress dependencies
  */
-import { controls, dispatch } from '@wordpress/data';
+import { controls } from '@wordpress/data';
 import { apiFetch, __unstableAwaitPromise } from '@wordpress/data-controls';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -21,6 +21,7 @@ import {
 	__unstableReleaseStoreLock,
 } from './locks';
 import { createBatch } from './batch';
+import { getDispatch } from './controls';
 
 /**
  * Returns an action object used in signalling that authors have been received.
@@ -559,18 +560,18 @@ export function* saveEntityRecord(
 }
 
 export function* __experimentalPerformBatch( requests ) {
+	const dispatch = yield getDispatch();
+
 	const batch = createBatch();
 
 	const api = {
 		saveEntityRecord( kind, name, record, options ) {
-			// TODO: This doesn't select the right registry.
 			return dispatch( 'core' ).saveEntityRecord( kind, name, record, {
 				...options,
 				__experimentalBatch: batch,
 			} );
 		},
 		saveEditedEntityRecord( kind, name, recordId, options ) {
-			// TODO: This doesn't select the right registry.
 			return dispatch( 'core' ).saveEditedEntityRecord(
 				kind,
 				name,
@@ -582,7 +583,6 @@ export function* __experimentalPerformBatch( requests ) {
 			);
 		},
 		deleteEntityRecord( kind, name, recordId, query, options ) {
-			// TODO: This doesn't select the right registry.
 			return dispatch( 'core' ).deleteEntityRecord( kind, name, query, {
 				...options,
 				__experimentalBatch: batch,
