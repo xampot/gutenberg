@@ -3,6 +3,15 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 
+/**
+ * Default batch processor. Sends its input requests to /v1/batch.
+ *
+ * @param {Array} requests List of API requests to perform at once.
+ *
+ * @return {Promise} Promise that resolves to a list of objects containing
+ *                   either `output` (if that request was succesful) or `error`
+ *                   (if not ).
+ */
 export default async function defaultProcessor( requests ) {
 	const batchResponse = await apiFetch( {
 		path: '/v1/batch',
