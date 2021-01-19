@@ -156,12 +156,15 @@ export function receiveEmbedPreview( url, preview ) {
 /**
  * Action triggered to delete an entity record.
  *
- * @param {string} kind              Kind of the deleted entity.
- * @param {string} name              Name of the deleted entity.
- * @param {string} recordId          Record ID of the deleted entity.
- * @param {?Object} query             Special query parameters for the DELETE API call.
- * @param options
- * @param options.__unstableFetch
+ * @param {string}   kind                      Kind of the deleted entity.
+ * @param {string}   name                      Name of the deleted entity.
+ * @param {string}   recordId                  Record ID of the deleted entity.
+ * @param {?Object}  query                     Special query parameters for the
+ *                                             DELETE API call.
+ * @param {Object}   [options]                 Delete options.
+ * @param {Function} [options.__unstableFetch] Internal use only. Function to
+ *                                             call instead of `apiFetch()`.
+ *                                             Must return a control descriptor.
  */
 export function* deleteEntityRecord(
 	kind,
@@ -346,12 +349,15 @@ export function __unstableCreateUndoLevel() {
 /**
  * Action triggered to save an entity record.
  *
- * @param {string} kind                       Kind of the received entity.
- * @param {string} name                       Name of the received entity.
- * @param {Object} record                     Record to be saved.
- * @param {Object} options                    Saving options.
- * @param {boolean} [options.isAutosave=false] Whether this is an autosave.
- * @param options.__unstableFetch
+ * @param {string}   kind                       Kind of the received entity.
+ * @param {string}   name                       Name of the received entity.
+ * @param {Object}   record                     Record to be saved.
+ * @param {Object}   options                    Saving options.
+ * @param {boolean}  [options.isAutosave=false] Whether this is an autosave.
+ * @param {Function} [options.__unstableFetch]  Internal use only. Function to
+ *                                              call instead of `apiFetch()`.
+ *                                              Must return a control
+ *                                              descriptor.
  */
 export function* saveEntityRecord(
 	kind,
@@ -574,6 +580,28 @@ export function* saveEntityRecord(
 	}
 }
 
+/**
+ * Runs multiple core-data actions at the same time using one API request.
+ *
+ * Example:
+ *
+ * ```
+ * const [ savedRecord, updatedRecord, deletedRecord ] =
+ *   await dispatch( 'core' ).__experimentalBatch( [
+ *     ( { saveEntityRecord } ) => saveEntityRecord( 'root', 'widget', widget ),
+ *     ( { saveEditedEntityRecord } ) => saveEntityRecord( 'root', 'widget', 123 ),
+ *     ( { deleteEntityRecord } ) => deleteEntityRecord( 'root', 'widget', 123, null ),
+ *   ] );
+ * ```
+ *
+ * @param {Array} requests Array of functions which are invoked simultaneously.
+ *                         Each function is passed an object containing
+ *                         `saveEntityRecord`, `saveEditedEntityRecord`, and
+ *                         `deleteEntityRecord`.
+ *
+ * @return {Promise} A promise that resolves to an array containing the return
+ *                   values of each function given in `requests`.
+ */
 export function* __experimentalBatch( requests ) {
 	const batch = createBatch();
 	const dispatch = yield getDispatch();
