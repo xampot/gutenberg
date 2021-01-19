@@ -6,10 +6,17 @@ import { get } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { Modal, TabPanel } from '@wordpress/components';
+import {
+	__experimentalNavigation as Navigation,
+	__experimentalNavigationMenu as NavigationMenu,
+	__experimentalNavigationItem as NavigationItem,
+	Modal,
+	TabPanel,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useMemo, useCallback } from '@wordpress/element';
+import { useMemo, useCallback, useState, Fragment } from '@wordpress/element';
+import { useViewportMatch } from '@wordpress/compose';
 import {
 	PostTaxonomies,
 	PostExcerptCheck,
@@ -37,6 +44,7 @@ import { store as editPostStore } from '../../store';
 const MODAL_NAME = 'edit-post/preferences';
 
 export default function PreferencesModal() {
+	const isLargeViewport = useViewportMatch( 'medium' );
 	const { closeModal } = useDispatch( editPostStore );
 	const { isModalActive, isViewable } = useSelect( ( select ) => {
 		const { getEditedPostAttribute } = select( editorStore );
@@ -54,14 +62,21 @@ export default function PreferencesModal() {
 				tabLabel: __( 'General' ),
 				content: (
 					<>
-						<Section title={ __( 'Choose your own experience' ) }>
-							<EnablePublishSidebarOption
-								help={ __(
-									'Review settings such as categories and tags.'
-								) }
-								label={ __( 'Include pre-publish checklist' ) }
-							/>
-						</Section>
+						{ isLargeViewport && (
+							<Section
+								title={ __( 'Choose your own experience' ) }
+							>
+								<EnablePublishSidebarOption
+									help={ __(
+										'Review settings such as categories and tags.'
+									) }
+									label={ __(
+										'Include pre-publish checklist'
+									) }
+									isLargeViewport={ isLargeViewport }
+								/>
+							</Section>
+						) }
 						<Section title={ __( 'Decide what to focus on' ) }>
 							<EnableFeature
 								featureName="reducedUI"
@@ -204,8 +219,11 @@ export default function PreferencesModal() {
 				),
 			},
 		],
-		[ isViewable ]
+		[ isViewable, isLargeViewport ]
 	);
+	const preferencesMenu = 'preferences-menu';
+	const [ activeTab ] = useState();
+	const [ activeMenu, setActiveMenu ] = useState( preferencesMenu );
 	/**
 	 * Create helper objects from `sections` for easier data handling.
 	 * `tabs` is used for creating the `TabPanel` and `sectionsContentMap`
@@ -230,6 +248,48 @@ export default function PreferencesModal() {
 	if ( ! isModalActive ) {
 		return null;
 	}
+	let modalContent = (
+		<TabPanel
+			className="edit-post-preferences__tabs"
+			tabs={ tabs }
+			orientation="vertical"
+		>
+			{ getCurrentTab }
+		</TabPanel>
+	);
+	if ( ! isLargeViewport ) {
+		modalContent = (
+			<Navigation
+				activeItem={ activeTab }
+				activeMenu={ activeMenu }
+				onActivateMenu={ setActiveMenu }
+			>
+				<NavigationMenu menu={ preferencesMenu }>
+					{ tabs.map( ( tab ) => {
+						return (
+							<NavigationItem
+								key={ tab.name }
+								title={ tab.title }
+								navigateToMenu={ tab.name }
+							/>
+						);
+					} ) }
+				</NavigationMenu>
+				{ sections.map( ( section ) => {
+					return (
+						<NavigationMenu
+							key={ `${ section.name }-menu` }
+							menu={ section.name }
+							title={ section.tabLabel }
+							parentMenu={ preferencesMenu }
+						>
+							<NavigationItem>{ section.content }</NavigationItem>
+						</NavigationMenu>
+					);
+				} ) }
+			</Navigation>
+		);
+	}
 	return (
 		<Modal
 			className="edit-post-preferences-modal"
@@ -238,13 +298,7 @@ export default function PreferencesModal() {
 			onRequestClose={ closeModal }
 		>
 			<div className="edit-post-preferences-modal__content">
-				<TabPanel
-					className="edit-post-preferences__tabs"
-					tabs={ tabs }
-					orientation="vertical"
-				>
-					{ getCurrentTab }
-				</TabPanel>
+				{ modalContent }
 			</div>
 		</Modal>
 	);
