@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { without, zip } from 'lodash';
+import { isFunction, zip } from 'lodash';
 
 /**
  * Internal dependencies
@@ -10,44 +10,42 @@ import defaultProcessor from './default-processor';
 
 export default function createBatch( processor = defaultProcessor ) {
 	const queue = [];
-	let listeners = [];
+
+	let expectedSize = 0,
+		actualSize = 0,
+		onFull = () => {};
 
 	return {
-		add( input ) {
-			return new Promise( ( resolve, reject ) => {
-				queue.push( {
-					input,
-					resolve,
-					reject,
+		add( inputOrThunk ) {
+			++expectedSize;
+
+			const doAdd = ( input ) =>
+				new Promise( ( resolve, reject ) => {
+					queue.push( {
+						input,
+						resolve,
+						reject,
+					} );
+
+					if ( ++actualSize === expectedSize ) {
+						onFull();
+					}
 				} );
 
-				for ( const listener of listeners ) {
-					listener();
-				}
-			} );
-		},
-
-		getSize() {
-			return queue.length;
-		},
-
-		waitForSize( size ) {
-			if ( queue.length === size ) {
-				return Promise.resolve();
+			if ( isFunction( inputOrThunk ) ) {
+				return inputOrThunk( doAdd );
 			}
 
-			return new Promise( ( resolve ) => {
-				const listener = () => {
-					if ( queue.length === size ) {
-						resolve();
-						listeners = without( listeners, listener );
-					}
-				};
-				listeners.push( listener );
-			} );
+			return doAdd( inputOrThunk );
 		},
 
-		async process() {
+		async run() {
+			if ( actualSize !== expectedSize ) {
+				await new Promise( ( resolve ) => {
+					onFull = resolve;
+				} );
+			}
+
 			let results;
 
 			try {

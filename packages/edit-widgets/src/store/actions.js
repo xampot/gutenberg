@@ -123,7 +123,7 @@ export function* saveWidgetArea( widgetAreaId ) {
 	);
 
 	const batchMeta = [];
-	const batchRequests = [];
+	const batchTasks = [];
 	const sidebarWidgetsIds = [];
 	for ( let i = 0; i < widgetsBlocks.length; i++ ) {
 		const block = widgetsBlocks[ i ];
@@ -159,11 +159,11 @@ export function* saveWidgetArea( widgetAreaId ) {
 				continue;
 			}
 
-			batchRequests.push( ( { saveEditedEntityRecord } ) =>
+			batchTasks.push( ( { saveEditedEntityRecord } ) =>
 				saveEditedEntityRecord( 'root', 'widget', widgetId )
 			);
 		} else {
-			batchRequests.push( ( { saveEntityRecord } ) =>
+			batchTasks.push( ( { saveEntityRecord } ) =>
 				saveEntityRecord( 'root', 'widget', {
 					...widget,
 					sidebar: widgetAreaId,
@@ -178,11 +178,7 @@ export function* saveWidgetArea( widgetAreaId ) {
 		} );
 	}
 
-	const records = yield dispatch(
-		'core',
-		'__experimentalPerformBatch',
-		batchRequests
-	);
+	const records = yield dispatch( 'core', '__experimentalBatch', batchTasks );
 
 	const failedWidgetNames = [];
 

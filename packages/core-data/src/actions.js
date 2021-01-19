@@ -156,12 +156,20 @@ export function receiveEmbedPreview( url, preview ) {
 /**
  * Action triggered to delete an entity record.
  *
- * @param {string}  kind              Kind of the deleted entity.
- * @param {string}  name              Name of the deleted entity.
- * @param {string}  recordId          Record ID of the deleted entity.
+ * @param {string} kind              Kind of the deleted entity.
+ * @param {string} name              Name of the deleted entity.
+ * @param {string} recordId          Record ID of the deleted entity.
  * @param {?Object} query             Special query parameters for the DELETE API call.
+ * @param options
+ * @param options.__unstableFetch
  */
-export function* deleteEntityRecord( kind, name, recordId, query ) {
+export function* deleteEntityRecord(
+	kind,
+	name,
+	recordId,
+	query,
+	{ __unstableFetch = null } = {}
+) {
 	const entities = yield getKindEntities( kind );
 	const entity = find( entities, { kind, name } );
 	let error;
@@ -190,10 +198,17 @@ export function* deleteEntityRecord( kind, name, recordId, query ) {
 				path = addQueryArgs( path, query );
 			}
 
-			deletedRecord = yield apiFetch( {
+			const options = {
 				path,
 				method: 'DELETE',
-			} );
+			};
+			if ( __unstableFetch ) {
+				deletedRecord = yield __unstableAwaitPromise(
+					__unstableFetch( options )
+				);
+			} else {
+				deletedRecord = yield apiFetch( options );
+			}
 
 			yield removeItems( kind, name, recordId, true );
 		} catch ( _error ) {
@@ -336,13 +351,13 @@ export function __unstableCreateUndoLevel() {
  * @param {Object} record                     Record to be saved.
  * @param {Object} options                    Saving options.
  * @param {boolean} [options.isAutosave=false] Whether this is an autosave.
- * @param options.__experimentalBatch
+ * @param options.__unstableFetch
  */
 export function* saveEntityRecord(
 	kind,
 	name,
 	record,
-	{ isAutosave = false, __experimentalBatch = null } = {}
+	{ isAutosave = false, __unstableFetch = null } = {}
 ) {
 	const entities = yield getKindEntities( kind );
 	const entity = find( entities, { kind, name } );
@@ -444,17 +459,17 @@ export function* saveEntityRecord(
 								: data.status,
 					}
 				);
-				const request = {
+				const options = {
 					path: `${ path }/autosaves`,
 					method: 'POST',
 					data,
 				};
-				if ( __experimentalBatch ) {
+				if ( __unstableFetch ) {
 					updatedRecord = yield __unstableAwaitPromise(
-						__experimentalBatch.add( request )
+						__unstableFetch( options )
 					);
 				} else {
-					updatedRecord = yield apiFetch( request );
+					updatedRecord = yield apiFetch( options );
 				}
 				// An autosave may be processed by the server as a regular save
 				// when its update is requested by the author and the post had
@@ -520,17 +535,17 @@ export function* saveEntityRecord(
 						),
 					};
 				}
-				const request = {
+				const options = {
 					path,
 					method: recordId ? 'PUT' : 'POST',
 					data: edits,
 				};
-				if ( __experimentalBatch ) {
+				if ( __unstableFetch ) {
 					updatedRecord = yield __unstableAwaitPromise(
-						__experimentalBatch.add( request )
+						__unstableFetch( options )
 					);
 				} else {
-					updatedRecord = yield apiFetch( request );
+					updatedRecord = yield apiFetch( options );
 				}
 				yield receiveEntityRecords(
 					kind,
@@ -559,47 +574,43 @@ export function* saveEntityRecord(
 	}
 }
 
-export function* __experimentalPerformBatch( requests ) {
-	const dispatch = yield getDispatch();
-
+export function* __experimentalBatch( tasks ) {
 	const batch = createBatch();
-
+	const dispatch = yield getDispatch();
 	const api = {
 		saveEntityRecord( kind, name, record, options ) {
-			return dispatch( 'core' ).saveEntityRecord( kind, name, record, {
-				...options,
-				__experimentalBatch: batch,
-			} );
+			return batch.add( ( request ) =>
+				dispatch( 'core' ).saveEntityRecord( kind, name, record, {
+					...options,
+					__unstableFetch: request,
+				} )
+			);
 		},
 		saveEditedEntityRecord( kind, name, recordId, options ) {
-			return dispatch( 'core' ).saveEditedEntityRecord(
-				kind,
-				name,
-				recordId,
-				{
-					...options,
-					__experimentalBatch: batch,
-				}
+			return batch.add( ( request ) =>
+				dispatch( 'core' ).saveEditedEntityRecord(
+					kind,
+					name,
+					recordId,
+					{
+						...options,
+						__unstableFetch: request,
+					}
+				)
 			);
 		},
 		deleteEntityRecord( kind, name, recordId, query, options ) {
-			return dispatch( 'core' ).deleteEntityRecord( kind, name, query, {
-				...options,
-				__experimentalBatch: batch,
-			} );
+			return batch.add( ( request ) =>
+				dispatch( 'core' ).deleteEntityRecord( kind, name, query, {
+					...options,
+					__unstableFetch: request,
+				} )
+			);
 		},
 	};
-
-	const promises = requests.map( ( callback ) => callback( api ) );
-
-	// TODO: Make it so don't need waitForSize().
-	yield __unstableAwaitPromise( batch.waitForSize( requests.length ) );
-
-	// TODO: __unstableAwaitPromise() isn't very rungen-ey.
-	yield __unstableAwaitPromise( batch.process() );
-
-	// TODO: __unstableAwaitPromise() isn't very rungen-ey.
-	return yield __unstableAwaitPromise( Promise.all( promises ) );
+	const results = tasks.map( ( task ) => task( api ) );
+	yield __unstableAwaitPromise( batch.run() );
+	return yield __unstableAwaitPromise( Promise.all( results ) );
 }
 
 /**
