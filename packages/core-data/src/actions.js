@@ -574,41 +574,47 @@ export function* saveEntityRecord(
 	}
 }
 
-export function* __experimentalBatch( tasks ) {
+export function* __experimentalBatch( requests ) {
 	const batch = createBatch();
 	const dispatch = yield getDispatch();
 	const api = {
 		saveEntityRecord( kind, name, record, options ) {
-			return batch.add( ( request ) =>
+			return batch.add( ( add ) =>
 				dispatch( 'core' ).saveEntityRecord( kind, name, record, {
 					...options,
-					__unstableFetch: request,
+					__unstableFetch: add,
 				} )
 			);
 		},
 		saveEditedEntityRecord( kind, name, recordId, options ) {
-			return batch.add( ( request ) =>
+			return batch.add( ( add ) =>
 				dispatch( 'core' ).saveEditedEntityRecord(
 					kind,
 					name,
 					recordId,
 					{
 						...options,
-						__unstableFetch: request,
+						__unstableFetch: add,
 					}
 				)
 			);
 		},
 		deleteEntityRecord( kind, name, recordId, query, options ) {
-			return batch.add( ( request ) =>
-				dispatch( 'core' ).deleteEntityRecord( kind, name, query, {
-					...options,
-					__unstableFetch: request,
-				} )
+			return batch.add( ( add ) =>
+				dispatch( 'core' ).deleteEntityRecord(
+					kind,
+					name,
+					recordId,
+					query,
+					{
+						...options,
+						__unstableFetch: add,
+					}
+				)
 			);
 		},
 	};
-	const results = tasks.map( ( task ) => task( api ) );
+	const results = requests.map( ( request ) => request( api ) );
 	yield __unstableAwaitPromise( batch.run() );
 	return yield __unstableAwaitPromise( Promise.all( results ) );
 }

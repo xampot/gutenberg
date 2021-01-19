@@ -55,7 +55,7 @@ export default function createBatch( processor = defaultProcessor ) {
 
 				if ( results.length !== queue.length ) {
 					throw new Error(
-						'process: Array returned by processor must be same size as input array.'
+						'run: Array returned by processor must be same size as input array.'
 					);
 				}
 			} catch ( error ) {
