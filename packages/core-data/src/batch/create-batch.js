@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isFunction, zip } from 'lodash';
+import { isFunction, zip, without } from 'lodash';
 
 /**
  * Internal dependencies
@@ -36,17 +36,15 @@ import defaultProcessor from './default-processor';
  *
  * @param {Function} [processor] Processor function. Can be used to replace the
  *                               default functionality which is to send an API
- *                               request to /v1/batch. Is given an aray of
+ *                               request to /v1/batch. Is given an array of
  *                               inputs and must return a promise that
  *                               resolves to an array of objects containing
  *                               either `output` or `error`.
  */
 export default function createBatch( processor = defaultProcessor ) {
+	let lastId = 0;
 	const queue = [];
-
-	let expectedSize = 0,
-		actualSize = 0,
-		onFull = () => {};
+	const pending = new ObservableSet();
 
 	return {
 		/**
@@ -62,6 +60,12 @@ export default function createBatch( processor = defaultProcessor ) {
 		 * batch.add( ( add ) => add( { path: '/v1/books', ... } ) );
 		 * ```
 		 *
+		 * If a thunk is passed, `batch.run()` will pause until either:
+		 *
+		 * - The thunk calls its `add` argument, or;
+		 * - The thunk returns a promise and that promise resolves, or;
+		 * - The thunk returns a non-promise.
+		 *
 		 * @param {any|Function} inputOrThunk Input to add or thunk to execute.
 		 
 		 * @return {Promise|any} If given an input, returns a promise that
@@ -70,7 +74,8 @@ export default function createBatch( processor = defaultProcessor ) {
 		 *                       value of that thunk.
 		 */
 		add( inputOrThunk ) {
-			++expectedSize;
+			const id = ++lastId;
+			pending.add( id );
 
 			const add = ( input ) =>
 				new Promise( ( resolve, reject ) => {
@@ -79,14 +84,13 @@ export default function createBatch( processor = defaultProcessor ) {
 						resolve,
 						reject,
 					} );
-
-					if ( ++actualSize === expectedSize ) {
-						onFull();
-					}
+					pending.delete( id );
 				} );
 
 			if ( isFunction( inputOrThunk ) ) {
-				return inputOrThunk( add );
+				return Promise.resolve( inputOrThunk( add ) ).finally( () => {
+					pending.delete( id );
+				} );
 			}
 
 			return add( inputOrThunk );
@@ -96,13 +100,18 @@ export default function createBatch( processor = defaultProcessor ) {
 		 * Runs the batch. This calls `batchProcessor` and resolves or rejects
 		 * all promises returned by `add()`.
 		 *
-		 * @return {Promise} A promise that resolves to a boolean which is true
-		 *                   if all resolutions were succesful.
+		 * @return {Promise} A promise that resolves to a boolean that is true
+		 *                   if the processor returned no errors.
 		 */
 		async run() {
-			if ( actualSize !== expectedSize ) {
+			if ( pending.size ) {
 				await new Promise( ( resolve ) => {
-					onFull = resolve;
+					const unsubscribe = pending.subscribe( () => {
+						if ( ! pending.size ) {
+							unsubscribe();
+							resolve();
+						}
+					} );
 				} );
 			}
 
@@ -143,4 +152,38 @@ export default function createBatch( processor = defaultProcessor ) {
 			return isSuccess;
 		},
 	};
+}
+
+class ObservableSet {
+	constructor( ...args ) {
+		this.set = new Set( ...args );
+		this.subscribers = [];
+	}
+
+	get size() {
+		return this.set.size;
+	}
+
+	add( ...args ) {
+		this.set.add( ...args );
+		for ( const subscriber of this.subscribers ) {
+			subscriber();
+		}
+		return this;
+	}
+
+	delete( ...args ) {
+		const isSuccess = this.set.delete( ...args );
+		for ( const subscriber of this.subscribers ) {
+			subscriber();
+		}
+		return isSuccess;
+	}
+
+	subscribe( subscriber ) {
+		this.subscribers.push( subscriber );
+		return () => {
+			this.subscribers = without( this.subscribers, subscriber );
+		};
+	}
 }

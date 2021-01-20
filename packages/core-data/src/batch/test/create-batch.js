@@ -52,6 +52,23 @@ describe( 'createBatch', () => {
 		expect( await promise2 ).toBe( 2 );
 	} );
 
+	test( "running doesn't time out when a thunk doesn't call add()", async () => {
+		const processor = async ( inputs ) =>
+			inputs.map( ( input ) => ( {
+				output: input,
+			} ) );
+		const batch = createBatch( processor );
+		const promise1 = batch.add( async () => {
+			await Promise.resolve(); // Simulates a delay.
+		} );
+		const promise2 = batch.add( () => {
+			// No delay.
+		} );
+		expect( await batch.run() ).toBe( true );
+		expect( await promise1 ).toBeUndefined();
+		expect( await promise2 ).toBeUndefined();
+	} );
+
 	test( 'running rejects promises when processor returns errors', async () => {
 		const processor = async ( inputs ) =>
 			inputs.map( ( input ) => ( {
