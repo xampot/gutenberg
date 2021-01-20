@@ -63,7 +63,7 @@ export default function ServerSideRender( props ) {
 	const [ response, setResponse ] = useState( null );
 	const prevProps = usePrevious( props );
 
-	function fetch() {
+	function fetchData() {
 		if ( ! isMountedRef.current ) {
 			return;
 		}
@@ -109,7 +109,7 @@ export default function ServerSideRender( props ) {
 		return fetchRequest;
 	}
 
-	const debouncedFetch = useDebounce( fetch, 500 );
+	const debouncedFetchData = useDebounce( fetchData, 500 );
 
 	// When the component unmounts, set isMountedRef to false. This will
 	// let the async fetch callbacks know when to stop.
@@ -124,9 +124,9 @@ export default function ServerSideRender( props ) {
 		// Don't debounce the first fetch. This ensures that the first render
 		// shows data as soon as possible
 		if ( prevProps === undefined ) {
-			fetch();
+			fetchData();
 		} else if ( ! isEqual( prevProps, props ) ) {
-			debouncedFetch();
+			debouncedFetchData();
 		}
 	} );
 
